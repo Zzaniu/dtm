@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
 	"github.com/stretchr/testify/assert"
 )
 

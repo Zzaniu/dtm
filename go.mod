@@ -1,4 +1,4 @@
-module github.com/dtm-labs/dtm2
+module github.com/dtm-labs/dtm
 
 go 1.16
 

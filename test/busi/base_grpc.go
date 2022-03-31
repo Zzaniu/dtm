@@ -13,15 +13,15 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmcli/logger"
-	"github.com/dtm-labs/dtm2/dtmgrpc"
-	"github.com/dtm-labs/dtm2/dtmutil"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm/dtmgrpc"
+	"github.com/dtm-labs/dtm/dtmutil"
 	"github.com/gin-gonic/gin"
 
-	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
-	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
 	grpc "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )

@@ -11,11 +11,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmcli/logger"
-	"github.com/dtm-labs/dtm2/dtmutil"
-	"github.com/dtm-labs/dtm2/test/busi"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm/dtmutil"
+	"github.com/dtm-labs/dtm/test/busi"
 	"github.com/stretchr/testify/assert"
 )
 

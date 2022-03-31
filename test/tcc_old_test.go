@@ -3,10 +3,10 @@ package test
 import (
 	"testing"
 
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmutil"
-	"github.com/dtm-labs/dtm2/test/busi"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmutil"
+	"github.com/dtm-labs/dtm/test/busi"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
 )

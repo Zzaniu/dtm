@@ -3,11 +3,11 @@ package registry
 import (
 	"time"
 
-	"github.com/dtm-labs/dtm2/dtmsvr/config"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage/boltdb"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage/redis"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage/sql"
+	"github.com/dtm-labs/dtm/dtmsvr/config"
+	"github.com/dtm-labs/dtm/dtmsvr/storage"
+	"github.com/dtm-labs/dtm/dtmsvr/storage/boltdb"
+	"github.com/dtm-labs/dtm/dtmsvr/storage/redis"
+	"github.com/dtm-labs/dtm/dtmsvr/storage/sql"
 )
 
 var conf = &config.Config

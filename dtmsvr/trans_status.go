@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmcli/logger"
-	"github.com/dtm-labs/dtm2/dtmgrpc"
-	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm/dtmgrpc"
+	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
 	"github.com/dtm-labs/dtmdriver"
 	"google.golang.org/grpc/metadata"
 )
@@ -99,7 +99,7 @@ func (t *TransGlobal) getURLResult(url string, branchID, op string, branchPayloa
 				"op":         op,
 			}).
 			SetHeader("Content-type", "application/json").
-			SetHeaders(t.Ext.Headers). // 设置请求头
+			SetHeaders(t.Ext.Headers).                // 设置请求头
 			SetHeaders(t.TransOptions.BranchHeaders). // 设置请求头
 			// 如果有 BinData 直接或者是xa, 用 post 请求方式, 其他为 get 请求方式
 			Execute(dtmimp.If(branchPayload != nil || t.TransType == "xa", "POST", "GET").(string), url)

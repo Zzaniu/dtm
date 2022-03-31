@@ -8,9 +8,9 @@ package dtmgrpc
 
 import (
 	context "context"
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
 	"github.com/dtm-labs/dtmdriver"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

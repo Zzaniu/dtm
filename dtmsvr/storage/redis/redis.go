@@ -9,11 +9,11 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmcli/logger"
-	"github.com/dtm-labs/dtm2/dtmsvr/config"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage"
-	"github.com/dtm-labs/dtm2/dtmutil"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm/dtmsvr/config"
+	"github.com/dtm-labs/dtm/dtmsvr/storage"
+	"github.com/dtm-labs/dtm/dtmutil"
 )
 
 // TODO: optimize this, it's very strange to use pointer to dtmutil.Config

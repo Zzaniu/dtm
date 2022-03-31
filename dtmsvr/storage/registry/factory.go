@@ -3,7 +3,7 @@ package registry
 import (
 	"sync"
 
-	"github.com/dtm-labs/dtm2/dtmsvr/storage"
+	"github.com/dtm-labs/dtm/dtmsvr/storage"
 )
 
 // SingletonFactory is the factory to build store in SINGLETON pattern.

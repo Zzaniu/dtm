@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage"
-	"github.com/dtm-labs/dtm2/dtmsvr/storage/registry"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmsvr/storage"
+	"github.com/dtm-labs/dtm/dtmsvr/storage/registry"
 )
 
 func initTransGlobal(gid string) (*storage.TransGlobalStore, storage.Store) {

@@ -10,7 +10,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
 )
 
 // Msg reliable msg type

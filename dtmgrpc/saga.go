@@ -7,8 +7,8 @@
 package dtmgrpc
 
 import (
-	"github.com/dtm-labs/dtm2/dtmcli"
-	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm/dtmcli"
+	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
 	"google.golang.org/protobuf/proto"
 )
 
