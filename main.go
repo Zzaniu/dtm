@@ -21,7 +21,6 @@ import (
 
 	// load the microserver driver
 	_ "github.com/Zzaniu/dtmzrpc"
-	// _ "github.com/dtm-labs/dtm/zrpcdriver"
 )
 
 // Version declares version info
