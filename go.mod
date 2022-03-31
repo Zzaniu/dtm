@@ -4,10 +4,9 @@ go 1.16
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/Zzaniu/zrpc v0.1.9
+	github.com/Zzaniu/dtmzrpc v0.1.0
 	github.com/dtm-labs/dtmdriver v0.0.1
 	github.com/gin-gonic/gin v1.7.7
-	github.com/go-basic/uuid v1.0.0
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-sql-driver/mysql v1.6.0
@@ -22,7 +21,7 @@ require (
 	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/automaxprocs v1.4.1-0.20210525221652-0180b04c18a7
 	go.uber.org/zap v1.21.0
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
