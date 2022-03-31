@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -50,9 +50,9 @@ func TestMsgMongoDoBusiLater(t *testing.T) {
 		SetQueryParams(map[string]string{
 			"trans_type": "msg",
 			"gid":        gid,
-			"branch_id":  dtmimp.MsgDoBranch0,
-			"op":         dtmimp.MsgDoOp,
-			"barrier_id": dtmimp.MsgDoBarrier1,
+			"branch_id":  "00",
+			"op":         "msg",
+			"barrier_id": "01",
 		}).
 		SetBody(req).Get(Busi + "/MongoQueryPrepared")
 	assert.Nil(t, err)

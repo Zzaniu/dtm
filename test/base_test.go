@@ -11,11 +11,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmutil"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmutil"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,10 +35,9 @@ func TestBaseSqlDB(t *testing.T) {
 		TransType: "saga",
 		Gid:       "gid2",
 		BranchID:  "branch_id2",
-		Op:        dtmimp.OpAction,
-		BarrierID: 1,
+		Op:        dtmcli.BranchAction,
 	}
-	db.Must().Exec("insert into dtm_barrier.barrier(trans_type, gid, branch_id, op, barrier_id, reason) values('saga', 'gid1', 'branch_id1', 'action', '01', 'saga')")
+	db.Must().Exec("insert into dtm_barrier.barrier(trans_type, gid, branch_id, op, reason) values('saga', 'gid1', 'branch_id1', 'action', 'saga')")
 	tx, err := db.ToSQLDB().Begin()
 	asserts.Nil(err)
 	err = barrier.Call(tx, func(tx *sql.Tx) error {

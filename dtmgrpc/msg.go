@@ -10,9 +10,9 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -33,12 +33,6 @@ func (s *MsgGrpc) Add(action string, msg proto.Message) *MsgGrpc {
 	return s
 }
 
-// SetDelay delay call branch, unit second
-func (s *MsgGrpc) SetDelay(delay uint64) *MsgGrpc {
-	s.Msg.SetDelay(delay)
-	return s
-}
-
 // Prepare prepare the msg, msg will later be submitted
 func (s *MsgGrpc) Prepare(queryPrepared string) error {
 	s.QueryPrepared = dtmimp.OrString(queryPrepared, s.QueryPrepared)
@@ -47,7 +41,6 @@ func (s *MsgGrpc) Prepare(queryPrepared string) error {
 
 // Submit submit the msg
 func (s *MsgGrpc) Submit() error {
-	s.Msg.BuildCustomOptions()
 	return dtmgimp.DtmGrpcCall(&s.TransBase, "Submit")
 }
 
@@ -63,7 +56,7 @@ func (s *MsgGrpc) DoAndSubmitDB(queryPrepared string, db *sql.DB, busiCall dtmcl
 // if busiCall return ErrFailure, then abort is called directly
 // if busiCall return not nil error other than ErrFailure, then DoAndSubmit will call queryPrepared to get the result
 func (s *MsgGrpc) DoAndSubmit(queryPrepared string, busiCall func(bb *dtmcli.BranchBarrier) error) error {
-	bb, err := dtmcli.BarrierFrom(s.TransType, s.Gid, dtmimp.MsgDoBranch0, dtmimp.MsgDoOp) // a special barrier for msg QueryPrepared
+	bb, err := dtmcli.BarrierFrom(s.TransType, s.Gid, "00", "msg") // a special barrier for msg QueryPrepared
 	if err == nil {
 		err = s.Prepare(queryPrepared)
 	}

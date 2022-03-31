@@ -10,11 +10,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
 	grpc "google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type rawCodec struct{}
@@ -44,12 +43,14 @@ func MustGetDtmClient(grpcServer string) dtmgpb.DtmClient {
 }
 
 // GetGrpcConn 1
+// 去链接 grpc server
 func GetGrpcConn(grpcServer string, isRaw bool) (conn *grpc.ClientConn, rerr error) {
 	clients := &normalClients
 	if isRaw {
 		clients = &rawClients
 	}
 	grpcServer = dtmimp.MayReplaceLocalhost(grpcServer)
+	fmt.Println("grpcServer = ", grpcServer)
 	v, ok := clients.Load(grpcServer)
 	if !ok {
 		opts := grpc.WithDefaultCallOptions()
@@ -59,7 +60,7 @@ func GetGrpcConn(grpcServer string, isRaw bool) (conn *grpc.ClientConn, rerr err
 		logger.Debugf("grpc client connecting %s", grpcServer)
 		interceptors := append(ClientInterceptors, GrpcClientLog)
 		inOpt := grpc.WithChainUnaryInterceptor(interceptors...)
-		conn, rerr := grpc.Dial(grpcServer, inOpt, grpc.WithTransportCredentials(insecure.NewCredentials()), opts)
+		conn, rerr := grpc.Dial(grpcServer, inOpt, grpc.WithInsecure(), opts)
 		if rerr == nil {
 			clients.Store(grpcServer, conn)
 			v = conn
@@ -70,6 +71,7 @@ func GetGrpcConn(grpcServer string, isRaw bool) (conn *grpc.ClientConn, rerr err
 }
 
 // MustGetGrpcConn 1
+// 获取链接 grpc server 的 conn, 在 GetGrpcConn 中调用 grpc.Dial, 然后用 sync.Map 保存起来
 func MustGetGrpcConn(grpcServer string, isRaw bool) *grpc.ClientConn {
 	conn, err := GetGrpcConn(grpcServer, isRaw)
 	dtmimp.E2P(err)

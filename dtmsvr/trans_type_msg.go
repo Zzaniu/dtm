@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2021 yedf. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ */
+
 package dtmsvr
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 )
 
 type transMsgProcessor struct {
@@ -24,17 +29,13 @@ func (t *transMsgProcessor) GenBranches() []TransBranch {
 			Gid:      t.Gid,
 			BranchID: fmt.Sprintf("%02d", i+1),
 			BinData:  t.BinPayloads[i],
-			URL:      step[dtmimp.OpAction],
-			Op:       dtmimp.OpAction,
+			URL:      step[dtmcli.BranchAction],
+			Op:       dtmcli.BranchAction,
 			Status:   dtmcli.StatusPrepared,
 		}
 		branches = append(branches, *b)
 	}
 	return branches
-}
-
-type cMsgCustom struct {
-	Delay uint64 //delay call branch, unit second
 }
 
 func (t *TransGlobal) mayQueryPrepared() {
@@ -47,10 +48,10 @@ func (t *TransGlobal) mayQueryPrepared() {
 	} else if errors.Is(err, dtmcli.ErrFailure) {
 		t.changeStatus(dtmcli.StatusFailed)
 	} else if errors.Is(err, dtmcli.ErrOngoing) {
-		t.touchCronTime(cronReset, 0)
+		t.touchCronTime(cronReset)
 	} else {
 		logger.Errorf("getting result failed for %s. error: %v", t.QueryPrepared, err)
-		t.touchCronTime(cronBackoff, 0)
+		t.touchCronTime(cronBackoff)
 	}
 }
 
@@ -59,43 +60,23 @@ func (t *transMsgProcessor) ProcessOnce(branches []TransBranch) error {
 	if !t.needProcess() || t.Status == dtmcli.StatusPrepared {
 		return nil
 	}
-	cmc := cMsgCustom{Delay: 0}
-	if t.CustomData != "" {
-		dtmimp.MustUnmarshalString(t.CustomData, &cmc)
-	}
-
-	if cmc.Delay > 0 && t.needDelay(cmc.Delay) {
-		t.touchCronTime(cronKeep, cmc.Delay)
-		return nil
-	}
-	var started int
-	resultsChan := make(chan error, len(branches))
-	var err error
-	for i := range branches {
-		b := &branches[i]
-		if b.Op != dtmimp.OpAction || b.Status != dtmcli.StatusPrepared {
+	current := 0 // 当前正在处理的步骤
+	for ; current < len(branches); current++ {
+		branch := &branches[current]
+		if branch.Op != dtmcli.BranchAction || branch.Status != dtmcli.StatusPrepared {
 			continue
 		}
-		if t.Concurrent {
-			started++
-			go func(pos int) {
-				resultsChan <- t.execBranch(b, pos)
-			}(i)
-		} else {
-			err = t.execBranch(b, i)
-			if err != nil {
-				break
-			}
+		err := t.execBranch(branch, current)
+		if err != nil {
+			return err
+		}
+		if branch.Status != dtmcli.StatusSucceed {
+			break
 		}
 	}
-	for i := 0; i < started && err == nil; i++ {
-		err = <-resultsChan
-	}
-	if err == dtmcli.ErrOngoing {
+	if current == len(branches) { // msg 事务完成
+		t.changeStatus(dtmcli.StatusSucceed)
 		return nil
-	} else if err != nil {
-		return err
 	}
-	t.changeStatus(dtmcli.StatusSucceed)
-	return nil
+	panic("msg go pass all branch")
 }

@@ -35,8 +35,7 @@
 
 ### flollowing config is only for some Driver
 #   DataExpire: 604800 # Trans data will expire in 7 days. only for redis/boltdb.
-#   FinishedDataExpire: 86400 # finished Trans data will expire in 1 days. only for redis.
-#   RedisPrefix: '{a}' # default value is '{a}'. Redis storage prefix. store data to only one slot in cluster
+#   RedisPrefix: '{}' # default value is '{}'. Redis storage prefix. store data to only one slot in cluster
 
 # MicroService:
 #   Driver: 'dtm-driver-gozero' # name of the driver to handle register/discover
@@ -57,7 +56,6 @@
 
 # HttpPort: 36789
 # GrpcPort: 36790
-# JsonRpcPort: 36791
 
 ### advanced options
 # UpdateBranchAsyncGoroutineNum: 1 # num of async goroutine to update branch status

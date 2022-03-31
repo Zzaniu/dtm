@@ -9,9 +9,9 @@ package test
 import (
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,14 +50,4 @@ func TestMsgOptionsTimeoutFailed(t *testing.T) {
 	busi.MainSwitch.QueryPreparedResult.SetOnce(dtmcli.ResultFailure)
 	cronTransOnceForwardNow(t, gid, 180)
 	assert.Equal(t, StatusFailed, getTransStatus(msg.Gid))
-}
-
-func TestMsgConcurrent(t *testing.T) {
-	msg := genMsg(dtmimp.GetFuncName())
-	msg.Concurrent = true
-	msg.Submit()
-	assert.Equal(t, StatusSubmitted, getTransStatus(msg.Gid))
-	waitTransProcessed(msg.Gid)
-	assert.Equal(t, []string{StatusSucceed, StatusSucceed}, getBranchesStatus(msg.Gid))
-	assert.Equal(t, StatusSucceed, getTransStatus(msg.Gid))
 }

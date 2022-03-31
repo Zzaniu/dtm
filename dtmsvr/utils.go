@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmsvr/config"
-	"github.com/dtm-labs/dtm/dtmsvr/storage"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/registry"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmsvr/config"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/registry"
 	"github.com/lithammer/shortuuid/v3"
 )
 
@@ -42,6 +42,8 @@ func GenGid() string {
 }
 
 // GetTransGlobal construct trans from db
+// 根据全局事务id从数据库找出来记录并返回TransGlobal
+// 如果没找到的话，直接 panic
 func GetTransGlobal(gid string) *TransGlobal {
 	trans := GetStore().FindTransGlobalStore(gid)
 	//nolint:staticcheck

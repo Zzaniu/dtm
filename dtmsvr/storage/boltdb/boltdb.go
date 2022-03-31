@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmsvr/storage"
-	"github.com/dtm-labs/dtm/dtmutil"
 	bolt "go.etcd.io/bbolt"
+
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage"
+	"github.com/dtm-labs/dtm2/dtmutil"
 )
 
 // Store implements storage.Store, and storage with boltdb
@@ -363,10 +364,10 @@ func (s *Store) ChangeGlobalStatus(global *storage.TransGlobalStore, newStatus s
 }
 
 // TouchCronTime updates cronTime
-func (s *Store) TouchCronTime(global *storage.TransGlobalStore, nextCronInterval int64, nextCronTime *time.Time) {
+func (s *Store) TouchCronTime(global *storage.TransGlobalStore, nextCronInterval int64) {
 	oldUnix := global.NextCronTime.Unix()
+	global.NextCronTime = dtmutil.GetNextTime(nextCronInterval)
 	global.UpdateTime = dtmutil.GetNextTime(0)
-	global.NextCronTime = nextCronTime
 	global.NextCronInterval = nextCronInterval
 	err := s.boltDb.Update(func(t *bolt.Tx) error {
 		g := tGetGlobal(t, global.Gid)
@@ -388,16 +389,12 @@ func (s *Store) LockOneGlobalTrans(expireIn time.Duration) *storage.TransGlobalS
 	next := time.Now().Add(time.Duration(s.retryInterval) * time.Second)
 	err := s.boltDb.Update(func(t *bolt.Tx) error {
 		cursor := t.Bucket(bucketIndex).Cursor()
-		toDelete := [][]byte{}
 		for trans == nil || trans.Status == dtmcli.StatusSucceed || trans.Status == dtmcli.StatusFailed {
 			k, v := cursor.First()
 			if k == nil || string(k) > min {
 				return storage.ErrNotFound
 			}
 			trans = tGetGlobal(t, string(v))
-			toDelete = append(toDelete, k)
-		}
-		for _, k := range toDelete {
 			err := t.Bucket(bucketIndex).Delete(k)
 			dtmimp.E2P(err)
 		}
@@ -411,33 +408,4 @@ func (s *Store) LockOneGlobalTrans(expireIn time.Duration) *storage.TransGlobalS
 	}
 	dtmimp.E2P(err)
 	return trans
-}
-
-// ResetCronTime rest nextCronTime
-// Prevent multiple backoff from causing NextCronTime to be too long
-func (s *Store) ResetCronTime(timeout time.Duration, limit int64) (succeedCount int64, hasRemaining bool, err error) {
-	next := time.Now()
-	var trans *storage.TransGlobalStore
-	min := fmt.Sprintf("%d", time.Now().Add(timeout).Unix())
-	err = s.boltDb.Update(func(t *bolt.Tx) error {
-		cursor := t.Bucket(bucketIndex).Cursor()
-		succeedCount = 0
-		for k, v := cursor.Seek([]byte(min)); k != nil && succeedCount <= limit; k, v = cursor.Next() {
-			if succeedCount == limit {
-				hasRemaining = true
-				break
-			}
-
-			trans = tGetGlobal(t, string(v))
-			err := t.Bucket(bucketIndex).Delete(k)
-			dtmimp.E2P(err)
-
-			trans.NextCronTime = &next
-			tPutGlobal(t, trans)
-			tPutIndex(t, next.Unix(), trans.Gid)
-			succeedCount++
-		}
-		return nil
-	})
-	return
 }

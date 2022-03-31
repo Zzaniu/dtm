@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"runtime"
 	"strconv"
@@ -20,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -41,6 +40,7 @@ var FatalIfError = logger.FatalIfError
 var LogIfFatalf = logger.FatalfIf
 
 // AsError wrap a panic value as an error
+// interface 转 error
 func AsError(x interface{}) error {
 	logger.Errorf("panic wrapped to error: '%v'", x)
 	if e, ok := x.(error); ok {
@@ -97,6 +97,7 @@ func OrString(ss ...string) string {
 }
 
 // If ternary operator
+// 相当于 三目运算 b ? 1: 2
 func If(condition bool, trueObj interface{}, falseObj interface{}) interface{} {
 	if condition {
 		return trueObj
@@ -145,9 +146,7 @@ func GetFuncName() string {
 // MayReplaceLocalhost when run in docker compose, change localhost to host.docker.internal for accessing host network
 func MayReplaceLocalhost(host string) string {
 	if os.Getenv("IS_DOCKER") != "" {
-		return strings.Replace(strings.Replace(host,
-			"localhost", "host.docker.internal", 1),
-			"127.0.0.1", "host.docker.internal", 1)
+		return strings.Replace(host, "localhost", "host.docker.internal", 1)
 	}
 	return host
 }
@@ -210,6 +209,7 @@ func GetDsn(conf DBConf) string {
 
 // RespAsErrorCompatible translate a resty response to error
 // compatible with version < v1.10
+// 根据状态码或者返回结果设置 error
 func RespAsErrorCompatible(resp *resty.Response) error {
 	code := resp.StatusCode()
 	str := resp.String()
@@ -235,27 +235,4 @@ func DeferDo(rerr *error, success func() error, fail func() error) {
 			*rerr = success()
 		}
 	}()
-}
-
-// Escape solve CodeQL reported problem
-func Escape(input string) string {
-	v := strings.Replace(input, "\n", "", -1)
-	v = strings.Replace(v, "\r", "", -1)
-	v = strings.Replace(v, ";", "", -1)
-	// v = strings.Replace(v, "'", "", -1)
-	return v
-}
-
-// EscapeGet escape get
-func EscapeGet(qs url.Values, key string) string {
-	return Escape(qs.Get(key))
-}
-
-// InsertBarrier insert a record to barrier
-func InsertBarrier(tx DB, transType string, gid string, branchID string, op string, barrierID string, reason string) (int64, error) {
-	if op == "" {
-		return 0, nil
-	}
-	sql := GetDBSpecial().GetInsertIgnoreTemplate(BarrierTableName+"(trans_type, gid, branch_id, op, barrier_id, reason) values(?,?,?,?,?,?)", "uniq_barrier")
-	return DBExec(tx, sql, transType, gid, branchID, op, barrierID, reason)
 }

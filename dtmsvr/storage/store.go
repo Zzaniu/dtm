@@ -24,11 +24,11 @@ type Store interface {
 	FindTransGlobalStore(gid string) *TransGlobalStore
 	ScanTransGlobalStores(position *string, limit int64) []TransGlobalStore
 	FindBranches(gid string) []TransBranchStore
+	// UpdateBranches 创建分支或更新分支状态，mysql这里是用的批处理  redis 的目前版本看是没有实现
 	UpdateBranches(branches []TransBranchStore, updates []string) (int, error)
 	LockGlobalSaveBranches(gid string, status string, branches []TransBranchStore, branchStart int)
 	MaySaveNewTrans(global *TransGlobalStore, branches []TransBranchStore) error
 	ChangeGlobalStatus(global *TransGlobalStore, newStatus string, updates []string, finished bool)
-	TouchCronTime(global *TransGlobalStore, nextCronInterval int64, nextCronTime *time.Time)
+	TouchCronTime(global *TransGlobalStore, nextCronInterval int64)
 	LockOneGlobalTrans(expireIn time.Duration) *TransGlobalStore
-	ResetCronTime(timeout time.Duration, limit int64) (succeedCount int64, hasRemaining bool, err error)
 }

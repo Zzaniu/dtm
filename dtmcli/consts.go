@@ -7,22 +7,35 @@
 package dtmcli
 
 import (
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
 )
 
 const (
 	// StatusPrepared status for global/branch trans status.
-	// first step, tx preparation period
 	StatusPrepared = "prepared"
 	// StatusSubmitted status for global trans status.
 	StatusSubmitted = "submitted"
 	// StatusSucceed status for global/branch trans status.
 	StatusSucceed = "succeed"
 	// StatusFailed status for global/branch trans status.
-	// NOTE: change global status to failed can stop trigger (Not recommended in production env)
 	StatusFailed = "failed"
 	// StatusAborting status for global trans status.
 	StatusAborting = "aborting"
+
+	// BranchTry branch type for TCC
+	BranchTry = "try"
+	// BranchConfirm branch type for TCC
+	BranchConfirm = "confirm"
+	// BranchCancel branch type for TCC
+	BranchCancel = "cancel"
+	// BranchAction branch type for message, SAGA, XA
+	BranchAction = "action" // 正向操作
+	// BranchCompensate branch type for SAGA
+	BranchCompensate = "compensate" // 补偿操作
+	// BranchCommit branch type for XA
+	BranchCommit = "commit"
+	// BranchRollback branch type for XA
+	BranchRollback = "rollback"
 
 	// ResultSuccess for result of a trans/trans branch
 	ResultSuccess = dtmimp.ResultSuccess

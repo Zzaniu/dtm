@@ -13,10 +13,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
@@ -73,8 +73,8 @@ func runTestTccBarrierDisorder(t *testing.T, store string) {
 		body := &busi.TransReq{Amount: 30, Store: store}
 		tryURL := Busi + "/TccBTransOutTry"
 		confirmURL := Busi + "/TccBTransOutConfirm"
-		cancelURL := Busi + "/SleepCancel"
-		// refer to time diagram for barrier, here we simulate it
+		cancelURL := Busi + "/TccBSleepCancel"
+		// 请参见子事务屏障里的时序图，这里为了模拟该时序图，手动拆解了callbranch
 		branchID := tcc.NewSubBranchID()
 		busi.SetSleepCancelHandler(func(c *gin.Context) interface{} {
 			res := busi.TccBarrierTransOutCancel(c)
@@ -85,16 +85,16 @@ func runTestTccBarrierDisorder(t *testing.T, store string) {
 			logger.Debugf("disorderHandler after cancel return read")
 			return res
 		})
-		// register tcc branch
+		// 注册子事务
 		resp, err := dtmimp.RestyClient.R().
 			SetBody(map[string]interface{}{
-				"gid":            tcc.Gid,
-				"branch_id":      branchID,
-				"trans_type":     "tcc",
-				"status":         StatusPrepared,
-				"data":           string(dtmimp.MustMarshal(body)),
-				dtmimp.OpConfirm: confirmURL,
-				dtmimp.OpCancel:  cancelURL,
+				"gid":                tcc.Gid,
+				"branch_id":          branchID,
+				"trans_type":         "tcc",
+				"status":             StatusPrepared,
+				"data":               string(dtmimp.MustMarshal(body)),
+				dtmcli.BranchConfirm: confirmURL,
+				dtmcli.BranchCancel:  cancelURL,
 			}).Post(fmt.Sprintf("%s/%s", tcc.Dtm, "registerBranch"))
 		assert.Nil(t, err)
 		assert.Contains(t, resp.String(), dtmcli.ResultSuccess)
@@ -121,10 +121,10 @@ func runTestTccBarrierDisorder(t *testing.T, store string) {
 				"gid":        tcc.Gid,
 				"branch_id":  branchID,
 				"trans_type": "tcc",
-				"op":         dtmimp.OpTry,
+				"op":         dtmcli.BranchTry,
 			}).
 			Post(tryURL)
-		assert.True(t, strings.Contains(r.String(), dtmcli.ResultSuccess)) // dangle op, return success
+		assert.True(t, strings.Contains(r.String(), dtmcli.ResultSuccess)) // 这个是悬挂操作，为了简单起见，依旧让他返回成功
 		logger.Debugf("cronFinished read")
 		<-cronFinished
 		<-cronFinished

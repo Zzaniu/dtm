@@ -10,9 +10,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmgrpc"
-	"github.com/dtm-labs/dtm/dtmutil"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmgrpc"
+	"github.com/dtm-labs/dtm2/dtmutil"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -94,34 +94,6 @@ func init() {
 		app.POST(BusiAPI+"/TccBTransInCancel", dtmutil.WrapHandler2(func(c *gin.Context) interface{} {
 			return MustBarrierFromGin(c).Call(txGet(), func(tx *sql.Tx) error {
 				return tccAdjustTrading(tx, TransInUID, -reqFrom(c).Amount)
-			})
-		}))
-		app.POST(BusiAPI+"/SagaMultiSource", dtmutil.WrapHandler2(func(c *gin.Context) interface{} {
-			barrier := MustBarrierFromGin(c)
-			transOutSource := pdbGet()
-			err := barrier.CallWithDB(transOutSource, func(tx *sql.Tx) error {
-				return SagaAdjustBalance(tx, TransOutUID, -reqFrom(c).Amount, reqFrom(c).TransOutResult)
-			})
-			if err != nil {
-				return err
-			}
-			transInSource := pdbGet()
-			return MustBarrierFromGin(c).CallWithDB(transInSource, func(tx *sql.Tx) error {
-				return SagaAdjustBalance(tx, TransInUID, reqFrom(c).Amount, reqFrom(c).TransInResult)
-			})
-		}))
-		app.POST(BusiAPI+"/SagaMultiSourceRevert", dtmutil.WrapHandler2(func(c *gin.Context) interface{} {
-			barrier := MustBarrierFromGin(c)
-			transOutSource := pdbGet()
-			err := barrier.CallWithDB(transOutSource, func(tx *sql.Tx) error {
-				return SagaAdjustBalance(tx, TransOutUID, +reqFrom(c).Amount, "")
-			})
-			if err != nil {
-				return err
-			}
-			transInSource := pdbGet()
-			return MustBarrierFromGin(c).CallWithDB(transInSource, func(tx *sql.Tx) error {
-				return SagaAdjustBalance(tx, TransInUID, -reqFrom(c).Amount, "")
 			})
 		}))
 		app.POST(BusiAPI+"/SagaRedisTransIn", dtmutil.WrapHandler2(func(c *gin.Context) interface{} {

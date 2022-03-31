@@ -9,14 +9,14 @@ package test
 import (
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/stretchr/testify/assert"
 )
 
 func genSagaCon(gid string, outFailed bool, inFailed bool) *dtmcli.Saga {
-	return genSaga(gid, outFailed, inFailed).SetConcurrent()
+	return genSaga(gid, outFailed, inFailed).EnableConcurrent()
 }
 
 func TestSagaConNormal(t *testing.T) {

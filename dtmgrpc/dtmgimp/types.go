@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 	"github.com/dtm-labs/dtmdriver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 )
 
-// GrpcServerLog middleware to print server-side grpc log
+// GrpcServerLog 打印grpc服务端的日志
 func GrpcServerLog(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	began := time.Now()
 	logger.Debugf("grpc server handling: %s %s", info.FullMethod, dtmimp.MustMarshalString(req))
@@ -35,7 +35,7 @@ func GrpcServerLog(ctx context.Context, req interface{}, info *grpc.UnaryServerI
 	return m, err
 }
 
-// GrpcClientLog middleware to print client-side grpc log
+// GrpcClientLog 打印grpc调用的日志
 func GrpcClientLog(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	logger.Debugf("grpc client calling: %s%s %v", cc.Target(), method, dtmimp.MustMarshalString(req))
 	LogDtmCtx(ctx)
@@ -58,8 +58,5 @@ func InvokeBranch(t *dtmimp.TransBase, isRaw bool, msg proto.Message, url string
 	}
 	ctx := TransInfo2Ctx(t.Gid, t.TransType, branchID, op, t.Dtm)
 	ctx = metadata.AppendToOutgoingContext(ctx, Map2Kvs(t.BranchHeaders)...)
-	if t.TransType == "xa" { // xa branch need additional phase2_url
-		ctx = metadata.AppendToOutgoingContext(ctx, Map2Kvs(map[string]string{dtmpre + "phase2_url": url})...)
-	}
 	return MustGetGrpcConn(server, isRaw).Invoke(ctx, method, msg, reply)
 }

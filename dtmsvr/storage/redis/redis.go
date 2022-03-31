@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2022 yedf. All rights reserved.
- * Use of this source code is governed by a BSD-style
- * license that can be found in the LICENSE file.
- */
-
 package redis
 
 import (
@@ -15,11 +9,11 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmsvr/config"
-	"github.com/dtm-labs/dtm/dtmsvr/storage"
-	"github.com/dtm-labs/dtm/dtmutil"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmsvr/config"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage"
+	"github.com/dtm-labs/dtm2/dtmutil"
 )
 
 // TODO: optimize this, it's very strange to use pointer to dtmutil.Config
@@ -105,8 +99,8 @@ func (s *Store) UpdateBranches(branches []storage.TransBranchStore, updates []st
 }
 
 type argList struct {
-	Keys []string      // 1 global trans, 2 branches, 3 indices, 4 status
-	List []interface{} // 1 redis prefix, 2 data expire
+	Keys []string
+	List []interface{}
 }
 
 func newArgList() *argList {
@@ -220,8 +214,7 @@ func (s *Store) ChangeGlobalStatus(global *storage.TransGlobalStore, newStatus s
 		AppendRaw(old).
 		AppendRaw(finished).
 		AppendRaw(global.Gid).
-		AppendRaw(newStatus).
-		AppendObject(conf.Store.FinishedDataExpire)
+		AppendRaw(newStatus)
 	_, err := callLua(args, `-- ChangeGlobalStatus
 local old = redis.call('GET', KEYS[4])
 if old ~= ARGV[4] then
@@ -231,9 +224,6 @@ redis.call('SET', KEYS[1],  ARGV[3], 'EX', ARGV[2])
 redis.call('SET', KEYS[4],  ARGV[7], 'EX', ARGV[2])
 if ARGV[5] == '1' then
 	redis.call('ZREM', KEYS[3], ARGV[6])
-	redis.call('EXPIRE', KEYS[1], ARGV[8])
-	redis.call('EXPIRE', KEYS[2], ARGV[8])
-	redis.call('EXPIRE', KEYS[4], ARGV[8])
 end
 `)
 	dtmimp.E2P(err)
@@ -270,40 +260,10 @@ return gid
 	}
 }
 
-// ResetCronTime rest nextCronTime
-// Prevent multiple backoff from causing NextCronTime to be too long
-func (s *Store) ResetCronTime(timeout time.Duration, limit int64) (succeedCount int64, hasRemaining bool, err error) {
-	next := time.Now().Unix()
-	timeoutTimestamp := time.Now().Add(timeout).Unix()
-	args := newArgList().AppendGid("").AppendRaw(timeoutTimestamp).AppendRaw(next).AppendRaw(limit)
-	lua := `-- ResetCronTime
-local r = redis.call('ZRANGEBYSCORE', KEYS[3], ARGV[3], '+inf', 'LIMIT', 0, ARGV[5]+1)
-local i = 0
-for score,gid in pairs(r) do
-	if i == tonumber(ARGV[5]) then
-		i = i + 1
-		break
-	end
-	redis.call('ZADD', KEYS[3], ARGV[4], gid)
-	i = i + 1
-end
-return tostring(i)
-`
-	r := ""
-	r, err = callLua(args, lua)
-	dtmimp.E2P(err)
-	succeedCount = int64(dtmimp.MustAtoi(r))
-	if succeedCount > limit {
-		hasRemaining = true
-		succeedCount = limit
-	}
-	return
-}
-
 // TouchCronTime updates cronTime
-func (s *Store) TouchCronTime(global *storage.TransGlobalStore, nextCronInterval int64, nextCronTime *time.Time) {
+func (s *Store) TouchCronTime(global *storage.TransGlobalStore, nextCronInterval int64) {
+	global.NextCronTime = dtmutil.GetNextTime(nextCronInterval)
 	global.UpdateTime = dtmutil.GetNextTime(0)
-	global.NextCronTime = nextCronTime
 	global.NextCronInterval = nextCronInterval
 	args := newArgList().
 		AppendGid(global.Gid).

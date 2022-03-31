@@ -9,9 +9,9 @@ package dtmgimp
 import (
 	context "context"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -25,6 +25,7 @@ func MustProtoMarshal(msg proto.Message) []byte {
 }
 
 // DtmGrpcCall make a convenient call to dtm
+// rpc 调用服务
 func DtmGrpcCall(s *dtmimp.TransBase, operation string) error {
 	reply := emptypb.Empty{}
 	return MustGetGrpcConn(s.Dtm, false).Invoke(context.Background(), "/dtmgimp.Dtm/"+operation, &dtmgpb.DtmRequest{
@@ -36,7 +37,6 @@ func DtmGrpcCall(s *dtmimp.TransBase, operation string) error {
 			RetryInterval:      s.RetryInterval,
 			PassthroughHeaders: s.PassthroughHeaders,
 			BranchHeaders:      s.BranchHeaders,
-			RequestTimeout:     s.RequestTimeout,
 		},
 		QueryPrepared: s.QueryPrepared,
 		CustomedData:  s.CustomData,
@@ -48,6 +48,7 @@ func DtmGrpcCall(s *dtmimp.TransBase, operation string) error {
 const dtmpre string = "dtm-"
 
 // TransInfo2Ctx add trans info to grpc context
+// 使用 metadata 将信息弄到 ctx 里面去
 func TransInfo2Ctx(gid, transType, branchID, op, dtm string) context.Context {
 	md := metadata.Pairs(
 		dtmpre+"gid", gid,
@@ -100,26 +101,4 @@ func TransBaseFromGrpc(ctx context.Context) *dtmimp.TransBase {
 func GetMetaFromContext(ctx context.Context, name string) string {
 	md, _ := metadata.FromIncomingContext(ctx)
 	return mdGet(md, name)
-}
-
-// GetDtmMetaFromContext get dtm header from context
-func GetDtmMetaFromContext(ctx context.Context, name string) string {
-	md, _ := metadata.FromIncomingContext(ctx)
-	return dtmGet(md, name)
-}
-
-type requestTimeoutKey struct{}
-
-// RequestTimeoutFromContext returns requestTime of transOption option
-func RequestTimeoutFromContext(ctx context.Context) int64 {
-	if v, ok := ctx.Value(requestTimeoutKey{}).(int64); ok {
-		return v
-	}
-
-	return 0
-}
-
-// RequestTimeoutNewContext sets requestTimeout of transOption option to context
-func RequestTimeoutNewContext(ctx context.Context, requestTimeout int64) context.Context {
-	return context.WithValue(ctx, requestTimeoutKey{}, requestTimeout)
 }

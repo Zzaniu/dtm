@@ -10,9 +10,9 @@ import (
 	context "context"
 	"fmt"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -25,9 +25,9 @@ type TccGrpc struct {
 type TccGlobalFunc func(tcc *TccGrpc) error
 
 // TccGlobalTransaction begin a tcc global transaction
-// dtm dtm server url
-// gid global transaction id
-// tccFunc tcc busi func, define the transaction logic
+// dtm dtm服务器地址
+// gid 全局事务id
+// tccFunc tcc事务函数，里面会定义全局事务的分支
 func TccGlobalTransaction(dtm string, gid string, tccFunc TccGlobalFunc) (rerr error) {
 	return TccGlobalTransaction2(dtm, gid, func(tg *TccGrpc) {}, tccFunc)
 }
@@ -40,6 +40,7 @@ func TccGlobalTransaction2(dtm string, gid string, custom func(*TccGrpc), tccFun
 	if rerr != nil {
 		return rerr
 	}
+	// 小概率情况下，prepare成功了，但是由于网络状况导致上面Failure，那么不执行下面defer的内容，等待超时后再回滚标记事务失败，也没有问题
 	defer dtmimp.DeferDo(&rerr, func() error {
 		return dtmgimp.DtmGrpcCall(&tcc.TransBase, "Submit")
 	}, func() error {

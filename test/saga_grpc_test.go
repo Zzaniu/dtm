@@ -9,11 +9,11 @@ package test
 import (
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmgrpc"
-	"github.com/dtm-labs/dtm/dtmutil"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc"
+	"github.com/dtm-labs/dtm2/dtmutil"
+	"github.com/dtm-labs/dtm2/test/busi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -90,7 +90,7 @@ func TestSagaGrpcEmptyUrl(t *testing.T) {
 	assert.Equal(t, StatusSucceed, getTransStatus(saga.Gid))
 }
 
-//nolint: unparam
+// nolint: unparam
 func genSagaGrpc(gid string, outFailed bool, inFailed bool) *dtmgrpc.SagaGrpc {
 	saga := dtmgrpc.NewSagaGrpc(dtmutil.DefaultGrpcServer, gid)
 	req := busi.GenBusiReq(30, outFailed, inFailed)
@@ -108,17 +108,6 @@ func TestSagaGrpcPassthroughHeadersYes(t *testing.T) {
 	err := sagaYes.Submit()
 	assert.Nil(t, err)
 	waitTransProcessed(gidYes)
-}
-
-func TestSagaGrpcWithGlobalTransRequestTimeout(t *testing.T) {
-	gid := dtmimp.GetFuncName()
-	saga := dtmgrpc.NewSagaGrpc(dtmutil.DefaultGrpcServer, gid)
-	saga.WaitResult = true
-	saga.Add(busi.BusiGrpc+"/busi.Busi/TransOutHeaderNo", "", nil)
-	saga.WithGlobalTransRequestTimeout(6)
-	err := saga.Submit()
-	assert.Nil(t, err)
-	waitTransProcessed(gid)
 }
 
 func TestSagaGrpcCronPassthroughHeadersYes(t *testing.T) {

@@ -5,8 +5,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/dtm-labs/dtm.svg)](https://pkg.go.dev/github.com/dtm-labs/dtm)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/avelino/awesome-go#database)
 
-简体中文 | [English](https://github.com/dtm-labs/dtm/blob/main/helper/README-en.md)
-
+# [English Docs](https://en.dtm.pub)
 # 跨语言分布式事务管理器
 
 DTM是一款变革性的分布式事务框架，提供了傻瓜式的使用方式，极大的降低了分布式事务的使用门槛，改变了“能不用分布式事务就不用”的行业现状。 dtm 的应用范围非常广，可以应用于以下常见的领域：
@@ -21,9 +20,11 @@ DTM是一款变革性的分布式事务框架，提供了傻瓜式的使用方�
 ## 谁在使用DTM(仅列出部分)
 [Tencent 腾讯](https://dtm.pub/other/using.html#tencent)
 
-[Bytedance 字节](https://dtm.pub/other/using.html#bytedance)
-
 [Ivydad 常青藤爸爸](https://dtm.pub/other/using.html#ivydad)
+
+[Eglass 视咖镜小二](https://dtm.pub/other/using.html)
+
+[极欧科技](https://dtm.pub/other/using.html)
 
 ## 亮点
 
@@ -67,7 +68,6 @@ DTM是一款变革性的分布式事务框架，提供了傻瓜式的使用方�
 
 ## 微服务框架支持
 - [go-zero](https://github.com/zeromicro/go-zero)：一开源就非常火爆的微服务框架，首家接入dtm的微服务框架。感谢go-zero作者[kevwan](https://github.com/kevwan)的大力支持
-- [kratos](https://github.com/go-kratos/kratos)：这是bilibili开源的一个微服务框架。感谢[lei liu](https://github.com/Leizhengzi)的贡献
 - [polaris](https://github.com/polarismesh/polaris): 腾讯开源的注册发现组件，以及在其上构建的微服务框架。感谢腾讯同学[ychensha](https://github.com/ychensha)的PR
 - 其他：看用户需求量，择机接入，参见[微服务支持](https://dtm.pub/ref/proto.html)
 
@@ -133,7 +133,7 @@ go run main.go
 在转入操作失败的情况下，TransIn和TransOut的补偿操作被执行，保证了最终的余额和转账前是一样的。
 
 ### 更多示例
-上述示例主要演示了分布式事务的流程，更多的内容，包括如何与实际的数据库对接，如何做补偿，如何做回滚等实际的例子，请参考[dtm-labs/dtm-examples](https://github.com/dtm-labs/dtm-examples)
+参考[dtm-labs/dtm-examples](https://github.com/dtm-labs/dtm-examples)
 
 ## 联系我们
 ### 公众号

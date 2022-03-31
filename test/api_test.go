@@ -8,13 +8,10 @@ package test
 
 import (
 	"fmt"
-	"net/http"
-	"strconv"
 	"testing"
 
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmutil"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,53 +78,4 @@ func TestDtmMetrics(t *testing.T) {
 	rest, err := dtmimp.RestyClient.R().Get("http://localhost:36789/api/metrics")
 	assert.Nil(t, err)
 	assert.Equal(t, rest.StatusCode(), 200)
-}
-
-func TestAPIResetCronTime(t *testing.T) {
-	testStoreResetCronTime(t, dtmimp.GetFuncName(), func(timeout int64, limit int64) (int64, bool, error) {
-		sTimeout := strconv.FormatInt(timeout, 10)
-		sLimit := strconv.FormatInt(limit, 10)
-
-		resp, err := dtmimp.RestyClient.R().SetQueryParams(map[string]string{
-			"timeout": sTimeout,
-			"limit":   sLimit,
-		}).Get(dtmutil.DefaultHTTPServer + "/resetCronTime")
-
-		m := map[string]interface{}{}
-		dtmimp.MustUnmarshalString(resp.String(), &m)
-		hasRemaining, ok := m["has_remaining"].(bool)
-		assert.Equal(t, ok, true)
-		succeedCount, ok := m["succeed_count"].(float64)
-		assert.Equal(t, ok, true)
-		return int64(succeedCount), hasRemaining, err
-	})
-}
-
-func TestAPIForceStoppedNormal(t *testing.T) {
-	saga := genSaga(dtmimp.GetFuncName(), false, false)
-	busi.MainSwitch.TransOutResult.SetOnce("ONGOING")
-	saga.Submit()
-	waitTransProcessed(saga.Gid)
-	assert.Equal(t, StatusSubmitted, getTransStatus(saga.Gid))
-
-	resp, err := dtmimp.RestyClient.R().SetBody(map[string]string{
-		"gid": saga.Gid,
-	}).Post(dtmutil.DefaultHTTPServer + "/forceStop")
-	assert.Nil(t, err)
-	assert.Equal(t, resp.StatusCode(), http.StatusOK)
-	assert.Equal(t, StatusFailed, getTransStatus(saga.Gid))
-}
-
-func TestAPIForceStoppedAbnormal(t *testing.T) {
-	saga := genSaga(dtmimp.GetFuncName(), false, false)
-	saga.Submit()
-	waitTransProcessed(saga.Gid)
-	assert.Equal(t, []string{StatusPrepared, StatusSucceed, StatusPrepared, StatusSucceed}, getBranchesStatus(saga.Gid))
-	assert.Equal(t, StatusSucceed, getTransStatus(saga.Gid))
-
-	resp, err := dtmimp.RestyClient.R().SetBody(map[string]string{
-		"gid": saga.Gid,
-	}).Post(dtmutil.DefaultHTTPServer + "/forceStop")
-	assert.Nil(t, err)
-	assert.Equal(t, resp.StatusCode(), http.StatusConflict)
 }

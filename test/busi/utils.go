@@ -9,12 +9,12 @@ import (
 	sync "sync"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmgrpc"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
-	"github.com/dtm-labs/dtm/dtmutil"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmgrpc"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm2/dtmutil"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-resty/resty/v2"
@@ -100,7 +100,7 @@ func oldWrapHandler(fn func(*gin.Context) (interface{}, error)) gin.HandlerFunc 
 			return fn(c)
 		}()
 		var b = []byte{}
-		if resp, ok := r.(*resty.Response); ok { // if it is a response，the get the body
+		if resp, ok := r.(*resty.Response); ok { // 如果是response，则取出body直接处理
 			b = resp.Body()
 		} else if err == nil {
 			b, err = json.Marshal(r)

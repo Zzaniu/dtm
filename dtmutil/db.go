@@ -3,12 +3,13 @@ package dtmutil
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 	_ "github.com/go-sql-driver/mysql" // register mysql driver
 	_ "github.com/lib/pq"              // register postgres driver
 	"gorm.io/driver/mysql"
@@ -77,7 +78,7 @@ func (op *tracePlugin) Initialize(db *gorm.DB) (err error) {
 	afterName := "cb_after"
 
 	logger.Debugf("installing db plugin: %s", op.Name())
-	// before
+	// 开始前
 	_ = db.Callback().Create().Before("gorm:before_create").Register(beforeName, before)
 	_ = db.Callback().Query().Before("gorm:query").Register(beforeName, before)
 	_ = db.Callback().Delete().Before("gorm:before_delete").Register(beforeName, before)
@@ -85,7 +86,7 @@ func (op *tracePlugin) Initialize(db *gorm.DB) (err error) {
 	_ = db.Callback().Row().Before("gorm:row").Register(beforeName, before)
 	_ = db.Callback().Raw().Before("gorm:raw").Register(beforeName, before)
 
-	// after
+	// 结束后
 	_ = db.Callback().Create().After("gorm:after_create").Register(afterName, after)
 	_ = db.Callback().Query().After("gorm:after_query").Register(afterName, after)
 	_ = db.Callback().Delete().After("gorm:after_delete").Register(afterName, after)
@@ -100,8 +101,9 @@ func DbGet(conf dtmcli.DBConf, ops ...func(*gorm.DB)) *DB {
 	dsn := dtmimp.GetDsn(conf)
 	db, ok := dbs.Load(dsn)
 	if !ok {
-		logger.Infof("connecting '%s' '%s' '%s' '%d'", conf.Driver, conf.Host, conf.User, conf.Port)
+		logger.Debugf("connecting %s", strings.Replace(dsn, conf.Password, "****", 1))
 		db1, err := gorm.Open(getGormDialetor(conf.Driver, dsn), &gorm.Config{
+			// Logger:                 glogger.Default.LogMode(glogger.Info),
 			SkipDefaultTransaction: true,
 		})
 		dtmimp.E2P(err)

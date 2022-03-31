@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -46,9 +46,8 @@ type Store struct {
 	MaxOpenConns       int64  `yaml:"MaxOpenConns" default:"500"`
 	MaxIdleConns       int64  `yaml:"MaxIdleConns" default:"500"`
 	ConnMaxLifeTime    int64  `yaml:"ConnMaxLifeTime" default:"5"`
-	DataExpire         int64  `yaml:"DataExpire" default:"604800"`        // Trans data will expire in 7 days. only for redis/boltdb.
-	FinishedDataExpire int64  `yaml:"FinishedDataExpire" default:"86400"` // finished Trans data will expire in 1 days. only for redis.
-	RedisPrefix        string `yaml:"RedisPrefix" default:"{a}"`          // Redis storage prefix. store data to only one slot in cluster
+	DataExpire         int64  `yaml:"DataExpire" default:"604800"` // Trans data will expire in 7 days. only for redis/boltdb.
+	RedisPrefix        string `yaml:"RedisPrefix" default:"{a}"`   // Redis storage prefix. store data to only one slot in cluster
 	TransGlobalTable   string `yaml:"TransGlobalTable" default:"dtm.trans_global"`
 	TransBranchOpTable string `yaml:"TransBranchOpTable" default:"dtm.trans_branch_op"`
 }
@@ -77,7 +76,6 @@ type configType struct {
 	RequestTimeout                int64        `yaml:"RequestTimeout" default:"3"`
 	HTTPPort                      int64        `yaml:"HttpPort" default:"36789"`
 	GrpcPort                      int64        `yaml:"GrpcPort" default:"36790"`
-	JSONRPCPort                   int64        `yaml:"JsonRpcPort" default:"36791"`
 	MicroService                  MicroService `yaml:"MicroService"`
 	UpdateBranchSync              int64        `yaml:"UpdateBranchSync"`
 	UpdateBranchAsyncGoroutineNum int64        `yaml:"UpdateBranchAsyncGoroutineNum" default:"1"`
@@ -85,7 +83,7 @@ type configType struct {
 	Log                           Log          `yaml:"Log"`
 }
 
-// Config config
+// Config 配置
 var Config = configType{}
 
 // MustLoadConfig load config from env and file

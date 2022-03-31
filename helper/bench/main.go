@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmsvr"
-	"github.com/dtm-labs/dtm/dtmsvr/config"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/registry"
-	"github.com/dtm-labs/dtm/helper/bench/svr"
-	"github.com/dtm-labs/dtm/test/busi"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmsvr"
+	"github.com/dtm-labs/dtm2/dtmsvr/config"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/registry"
+	"github.com/dtm-labs/dtm2/helper/bench/svr"
+	"github.com/dtm-labs/dtm2/test/busi"
 )
 
 var usage = `bench is a bench test server for dtmf
@@ -47,8 +47,8 @@ func main() {
 	} else {
 		hintAndExit()
 	}
-	dtmsvr.StartSvr()
-	go dtmsvr.CronExpiredTrans(-1)
-	svr.StartSvr()
+	dtmsvr.StartSvr()              // 启动dtmsvr的api服务
+	go dtmsvr.CronExpiredTrans(-1) // 启动dtmsvr的定时过期查询
+	svr.StartSvr()                 // 启动bench服务
 	select {}
 }

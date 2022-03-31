@@ -11,10 +11,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgpb"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgimp"
+	"github.com/dtm-labs/dtm2/dtmgrpc/dtmgpb"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -26,10 +26,14 @@ type XaGrpcGlobalFunc func(xa *XaGrpc) error
 // XaGrpcLocalFunc type of xa local function
 type XaGrpcLocalFunc func(db *sql.DB, xa *XaGrpc) error
 
+// XaGrpcClient xa client
+type XaGrpcClient struct {
+	dtmimp.XaClientBase
+}
+
 // XaGrpc xa transaction
 type XaGrpc struct {
 	dtmimp.TransBase
-	Phase2URL string
 }
 
 // XaGrpcFromRequest construct xa info from request
@@ -37,23 +41,39 @@ func XaGrpcFromRequest(ctx context.Context) (*XaGrpc, error) {
 	xa := &XaGrpc{
 		TransBase: *dtmgimp.TransBaseFromGrpc(ctx),
 	}
-	xa.Phase2URL = dtmgimp.GetDtmMetaFromContext(ctx, "phase2_url")
-	if xa.Gid == "" || xa.BranchID == "" || xa.Op == "" {
-		return nil, fmt.Errorf("bad xa info: gid: %s branchid: %s op: %s phase2_url: %s", xa.Gid, xa.BranchID, xa.Op, xa.Phase2URL)
+	if xa.Gid == "" || xa.BranchID == "" {
+		return nil, fmt.Errorf("bad xa info: gid: %s branchid: %s", xa.Gid, xa.BranchID)
 	}
 	return xa, nil
 }
 
+// NewXaGrpcClient construct a xa client
+func NewXaGrpcClient(server string, mysqlConf dtmcli.DBConf, notifyURL string) *XaGrpcClient {
+	xa := &XaGrpcClient{XaClientBase: dtmimp.XaClientBase{
+		Server:    server,
+		Conf:      mysqlConf,
+		NotifyURL: notifyURL,
+	}}
+	return xa
+}
+
+// HandleCallback 处理commit/rollback的回调
+func (xc *XaGrpcClient) HandleCallback(ctx context.Context) (*emptypb.Empty, error) {
+	tb := dtmgimp.TransBaseFromGrpc(ctx)
+	return &emptypb.Empty{}, xc.XaClientBase.HandleCallback(tb.Gid, tb.BranchID, tb.Op)
+}
+
 // XaLocalTransaction start a xa local transaction
-func XaLocalTransaction(ctx context.Context, dbConf dtmcli.DBConf, xaFunc XaGrpcLocalFunc) error {
+func (xc *XaGrpcClient) XaLocalTransaction(ctx context.Context, msg proto.Message, xaFunc XaGrpcLocalFunc) error {
 	xa, err := XaGrpcFromRequest(ctx)
 	if err != nil {
 		return err
 	}
-	if xa.Op == dtmimp.OpCommit || xa.Op == dtmimp.OpRollback {
-		return dtmimp.XaHandlePhase2(xa.Gid, dbConf, xa.BranchID, xa.Op)
+	data, err := proto.Marshal(msg)
+	if err != nil {
+		return err
 	}
-	return dtmimp.XaHandleLocalTrans(&xa.TransBase, dbConf, func(db *sql.DB) error {
+	return xc.HandleLocalTrans(&xa.TransBase, func(db *sql.DB) error {
 		err := xaFunc(db, xa)
 		if err != nil {
 			return err
@@ -62,28 +82,28 @@ func XaLocalTransaction(ctx context.Context, dbConf dtmcli.DBConf, xaFunc XaGrpc
 			Gid:         xa.Gid,
 			BranchID:    xa.BranchID,
 			TransType:   xa.TransType,
-			BusiPayload: nil,
-			Data:        map[string]string{"url": xa.Phase2URL},
+			BusiPayload: data,
+			Data:        map[string]string{"url": xc.NotifyURL},
 		})
 		return err
 	})
 }
 
 // XaGlobalTransaction start a xa global transaction
-func XaGlobalTransaction(server string, gid string, xaFunc XaGrpcGlobalFunc) error {
-	return XaGlobalTransaction2(server, gid, func(xg *XaGrpc) {}, xaFunc)
+func (xc *XaGrpcClient) XaGlobalTransaction(gid string, xaFunc XaGrpcGlobalFunc) error {
+	return xc.XaGlobalTransaction2(gid, func(xg *XaGrpc) {}, xaFunc)
 }
 
 // XaGlobalTransaction2 new version of XaGlobalTransaction. support custom
-func XaGlobalTransaction2(server string, gid string, custom func(*XaGrpc), xaFunc XaGrpcGlobalFunc) error {
-	xa := &XaGrpc{TransBase: *dtmimp.NewTransBase(gid, "xa", server, "")}
+func (xc *XaGrpcClient) XaGlobalTransaction2(gid string, custom func(*XaGrpc), xaFunc XaGrpcGlobalFunc) error {
+	xa := &XaGrpc{TransBase: *dtmimp.NewTransBase(gid, "xa", xc.Server, "")}
 	custom(xa)
 	dc := dtmgimp.MustGetDtmClient(xa.Dtm)
 	req := &dtmgpb.DtmRequest{
 		Gid:       gid,
 		TransType: xa.TransType,
 	}
-	return dtmimp.XaHandleGlobalTrans(&xa.TransBase, func(action string) error {
+	return xc.HandleGlobalTrans(&xa.TransBase, func(action string) error {
 		f := map[string]func(context.Context, *dtmgpb.DtmRequest, ...grpc.CallOption) (*emptypb.Empty, error){
 			"prepare": dc.Prepare,
 			"submit":  dc.Submit,

@@ -10,9 +10,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
-	"github.com/dtm-labs/dtm/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmcli"
+	"github.com/dtm-labs/dtm2/dtmcli/dtmimp"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -126,9 +126,6 @@ func (s *AutoEmptyString) SetOnce(v string) {
 func (s *AutoEmptyString) Fetch() string {
 	v := s.value
 	s.value = ""
-	if v != "" {
-		logger.Debugf("fetch obtain not empty value: %s", v)
-	}
 	return v
 }
 
@@ -141,7 +138,6 @@ type mainSwitchType struct {
 	TransOutRevertResult  AutoEmptyString
 	QueryPreparedResult   AutoEmptyString
 	NextResult            AutoEmptyString
-	JrpcResult            AutoEmptyString
 }
 
 // MainSwitch controls busi success or fail

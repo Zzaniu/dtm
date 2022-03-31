@@ -3,11 +3,11 @@ package registry
 import (
 	"time"
 
-	"github.com/dtm-labs/dtm/dtmsvr/config"
-	"github.com/dtm-labs/dtm/dtmsvr/storage"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/boltdb"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/redis"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/sql"
+	"github.com/dtm-labs/dtm2/dtmsvr/config"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/boltdb"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/redis"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/sql"
 )
 
 var conf = &config.Config
@@ -16,12 +16,6 @@ var conf = &config.Config
 type StorageFactory interface {
 	// GetStorage will return the Storage instance.
 	GetStorage() storage.Store
-}
-
-var sqlFac = &SingletonFactory{
-	creatorFunction: func() storage.Store {
-		return &sql.Store{}
-	},
 }
 
 var storeFactorys = map[string]StorageFactory{
@@ -35,8 +29,16 @@ var storeFactorys = map[string]StorageFactory{
 			return &redis.Store{}
 		},
 	},
-	"mysql":    sqlFac,
-	"postgres": sqlFac,
+	"mysql": &SingletonFactory{
+		creatorFunction: func() storage.Store {
+			return &sql.Store{}
+		},
+	},
+	"postgres": &SingletonFactory{
+		creatorFunction: func() storage.Store {
+			return &sql.Store{}
+		},
+	},
 }
 
 // GetStore returns storage.Store

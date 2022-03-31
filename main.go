@@ -14,16 +14,13 @@ import (
 
 	"go.uber.org/automaxprocs/maxprocs"
 
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/dtm-labs/dtm/dtmsvr"
-	"github.com/dtm-labs/dtm/dtmsvr/config"
-	"github.com/dtm-labs/dtm/dtmsvr/storage/registry"
+	"github.com/dtm-labs/dtm2/dtmcli/logger"
+	"github.com/dtm-labs/dtm2/dtmsvr"
+	"github.com/dtm-labs/dtm2/dtmsvr/config"
+	"github.com/dtm-labs/dtm2/dtmsvr/storage/registry"
 
 	// load the microserver driver
-	_ "github.com/dtm-labs/dtmdriver-gozero"
-	_ "github.com/dtm-labs/dtmdriver-kratos"
-	_ "github.com/dtm-labs/dtmdriver-polaris"
-	_ "github.com/dtm-labs/dtmdriver-protocol1"
+	_ "github.com/dtm-labs/dtm2/zrpcdriver"
 )
 
 // Version declares version info
@@ -45,7 +42,7 @@ func usage() {
 
 var isVersion = flag.Bool("v", false, "Show the version of dtm.")
 var isDebug = flag.Bool("d", false, "Set log level to debug.")
-var isHelp = flag.Bool("h", false, "Show the help information about dtm.")
+var isHelp = flag.Bool("h", false, "Show the help information about etcd.")
 var isReset = flag.Bool("r", false, "Reset dtm server data.")
 var confFile = flag.String("c", "", "Path to the server configuration file.")
 
@@ -58,7 +55,6 @@ func main() {
 		version()
 		return
 	}
-	logger.Infof("dtm version is: %s", Version)
 	config.MustLoadConfig(*confFile)
 	conf := &config.Config
 	if *isDebug {
@@ -66,11 +62,16 @@ func main() {
 	}
 	logger.InitLog2(conf.LogLevel, conf.Log.Outputs, conf.Log.RotationEnable, conf.Log.RotationConfigJSON)
 	if *isReset {
+		// 这里好像是去重新执行一下 sql 语句
 		dtmsvr.PopulateDB(false)
 	}
+	// 设置 M 吧好像是
 	_, _ = maxprocs.Set(maxprocs.Logger(logger.Infof))
+	// ping 一下看 mysql 或者 redis 依赖是否 OK
+	// mysql 是用 select 1 来判断是否 OK
 	registry.WaitStoreUp()
-	dtmsvr.StartSvr()              // start dtmsvr api
-	go dtmsvr.CronExpiredTrans(-1) // start dtmsvr cron job
+	// 启动服务
+	dtmsvr.StartSvr()              // 启动dtmsvr的api服务
+	go dtmsvr.CronExpiredTrans(-1) // 启动dtmsvr的定时过期查询
 	select {}
 }
