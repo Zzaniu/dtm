@@ -50,7 +50,6 @@ func GetGrpcConn(grpcServer string, isRaw bool) (conn *grpc.ClientConn, rerr err
 		clients = &rawClients
 	}
 	grpcServer = dtmimp.MayReplaceLocalhost(grpcServer)
-	fmt.Println("grpcServer = ", grpcServer)
 	v, ok := clients.Load(grpcServer)
 	if !ok {
 		opts := grpc.WithDefaultCallOptions()
