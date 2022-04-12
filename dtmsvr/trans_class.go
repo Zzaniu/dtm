@@ -75,7 +75,7 @@ func TransFromContext(c *gin.Context) *TransGlobal {
 		m.BinPayloads = append(m.BinPayloads, []byte(p))
 	}
 	// Steps = []map[string]string{map[string]string{"action":"http://localhost:9911/genorder", "compensate":"http://localhost:9911/delorder"}, map[string]string{"action":"http://localhost:9912/reduce", "compensate":"http://localhost:9912/add"}}
-	fmt.Printf("m.Steps = %#v\n", m.Steps)
+	// fmt.Printf("m.Steps = %#v\n", m.Steps)
 	for _, d := range m.Steps {
 		if d["data"] != "" {
 			m.BinPayloads = append(m.BinPayloads, []byte(d["data"]))

@@ -29,7 +29,9 @@ func (t *transTccProcessor) ProcessOnce(branches []TransBranch) error {
 	if !t.needProcess() {
 		return nil
 	}
-	// 这个应该就是 TccGlobalTransaction2 中的“小概率”事件, 也就是超时
+	// 这个应该就是 TccGlobalTransaction2 中的“小概率”事件(网络问题),
+	// 或者执行第一个 try 就失败了, 那么状态就为 prepare,
+	// 这种一般都是超时进来的
 	if t.Status == dtmcli.StatusPrepared && t.isTimeout() {
 		// 全局事务状态修改为 aborting 后续进行回滚
 		t.changeStatus(dtmcli.StatusAborting)

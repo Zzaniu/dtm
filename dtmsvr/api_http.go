@@ -19,7 +19,7 @@ import (
 func addRoute(engine *gin.Engine) {
 	// 返回一个全局事务 id
 	engine.GET("/api/dtmsvr/newGid", dtmutil.WrapHandler2(newGid))
-	// 保存全局事务信息和分支信息，状态为 prepared(tcc 会调用这个)
+	// 保存全局事务信息和分支信息，状态为 prepared(tcc/msg 会调用这个)
 	engine.POST("/api/dtmsvr/prepare", dtmutil.WrapHandler2(prepare))
 	// 保存全局事务信息和分支信息，状态为 submitted 并根据分支信息执行对应的分支调用来执行事务(saga 会调用这个)
 	engine.POST("/api/dtmsvr/submit", dtmutil.WrapHandler2(submit))

@@ -83,7 +83,7 @@ func (bb *BranchBarrier) Call(tx *sql.Tx, busiCall BarrierBusiFunc) (rerr error)
 	})
 
 	// 映射(如果是补偿的, 那么映射正向的 op)
-	// 如果当前为 action/try 那么 originOp 就是 action/try, 如果当前为 cancel/compensate, originOp 为 try/action
+	// 如果当前为 action/try 那么 originOp 就是 "", 如果当前为 cancel/compensate, originOp 为 try/action
 	originOp := map[string]string{
 		BranchCancel:     BranchTry,
 		BranchCompensate: BranchAction,
@@ -91,13 +91,13 @@ func (bb *BranchBarrier) Call(tx *sql.Tx, busiCall BarrierBusiFunc) (rerr error)
 
 	// 插入屏障的原理是利用 insert ignore into, 然后判断是否成功插入来实现的
 	// dtm_barrier.barrier unique key: gid、branch_id、op、barrier_id
-	// 正向的时候, 这个一般是可以插进去的(op action  resaon action)(除非有别的线程已经插进去了)
+	// 正向的时候, 这个一般是插不进去的(op ""  resaon action)
 	// 反向的时候, 如果之前正向的操作成功了的话, 这里是无法插入的,
-	// 如果这里成功插入的话, 说明之前正向操作没有执行(op action  resaon compensate)
-	// tcc try 的话, 这里是插入(op try  reason try), 下面无法插入
-	// tcc cancel 的话, 这里无法插入(op try  reason cancel)
+	//  如果这里成功插入的话, 说明之前正向操作没有执行(op action  resaon compensate)
+	// tcc try 的话, 这里是无法插入(op ""   reason try)
+	// tcc cancel 的话, 这里插入(op try  reason cancel)
 	originAffected, oerr := insertBarrier(tx, bb.TransType, bb.Gid, bb.BranchID, originOp, bid, bb.Op)
-	// 这个在正向的时候, 一般是插不进去的(op action  resaon action)(rerr 为 nil  currentAffected 为 0) TODO msg除外，后续看到 msg 再回来补
+	// 这个在正向的时候, 一般是能插进去的(op action  resaon action)(rerr 为 nil  currentAffected 为 0) TODO msg除外，后续看到 msg 再回来补
 	// 反向的时候, 这个是可以插入成功的(op compensate  resaon compensate)
 	// tcc cancel 的话, 这里是插入(op cancel  reason cancel)
 	currentAffected, rerr := insertBarrier(tx, bb.TransType, bb.Gid, bb.BranchID, bb.Op, bid, bb.Op)
