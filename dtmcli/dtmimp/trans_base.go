@@ -116,7 +116,7 @@ func TransRequestBranch(t *TransBase, method string, body interface{}, branchID 
     resp, err := RestyClient.R().
         SetBody(body).
         SetQueryParams(map[string]string{
-            "dtm": t.Dtm,
+            "dtm":        t.Dtm,
             "gid":        t.Gid,
             "branch_id":  branchID,
             "trans_type": t.TransType,
