@@ -7,14 +7,14 @@
 package dtmgrpc
 
 import (
-	"context"
+    "context"
 
-	"github.com/dtm-labs/dtm/dtmcli"
-	"github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
+    "github.com/dtm-labs/dtm/dtmcli"
+    "github.com/dtm-labs/dtm/dtmgrpc/dtmgimp"
 )
 
 // BarrierFromGrpc generate a Barrier from grpc context
 func BarrierFromGrpc(ctx context.Context) (*dtmcli.BranchBarrier, error) {
-	tb := dtmgimp.TransBaseFromGrpc(ctx)
-	return dtmcli.BarrierFrom(tb.TransType, tb.Gid, tb.BranchID, tb.Op)
+    tb := dtmgimp.TransBaseFromGrpc(ctx)
+    return dtmcli.BarrierFrom(tb.TransType, tb.Gid, tb.BranchID, tb.Op)
 }

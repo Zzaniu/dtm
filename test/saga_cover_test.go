@@ -1,11 +1,11 @@
 package test
 
 import (
-	"testing"
+    "testing"
 
-	"github.com/dtm-labs/dtm/dtmcli"
+    "github.com/dtm-labs/dtm/dtmcli"
 )
 
 func TestSagaCover(t *testing.T) {
-	dtmcli.SetPassthroughHeaders([]string{})
+    dtmcli.SetPassthroughHeaders([]string{})
 }

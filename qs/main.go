@@ -7,9 +7,9 @@
 package main
 
 import (
-	"github.com/dtm-labs/dtm/test/busi"
+    "github.com/dtm-labs/dtm/test/busi"
 )
 
 func main() {
-	busi.QsMain()
+    busi.QsMain()
 }

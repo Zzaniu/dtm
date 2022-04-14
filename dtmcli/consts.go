@@ -7,47 +7,47 @@
 package dtmcli
 
 import (
-	"github.com/dtm-labs/dtm/dtmcli/dtmimp"
+    "github.com/dtm-labs/dtm/dtmcli/dtmimp"
 )
 
 const (
-	// StatusPrepared status for global/branch trans status.
-	StatusPrepared = "prepared"
-	// StatusSubmitted status for global trans status.
-	StatusSubmitted = "submitted"
-	// StatusSucceed status for global/branch trans status.
-	StatusSucceed = "succeed"
-	// StatusFailed status for global/branch trans status.
-	StatusFailed = "failed"
-	// StatusAborting status for global trans status.
-	StatusAborting = "aborting"
+    // StatusPrepared status for global/branch trans status.
+    StatusPrepared = "prepared"
+    // StatusSubmitted status for global trans status.
+    StatusSubmitted = "submitted"
+    // StatusSucceed status for global/branch trans status.
+    StatusSucceed = "succeed"
+    // StatusFailed status for global/branch trans status.
+    StatusFailed = "failed"
+    // StatusAborting status for global trans status.
+    StatusAborting = "aborting"
 
-	// BranchTry branch type for TCC
-	BranchTry = "try"
-	// BranchConfirm branch type for TCC
-	BranchConfirm = "confirm"
-	// BranchCancel branch type for TCC
-	BranchCancel = "cancel"
-	// BranchAction branch type for message, SAGA, XA
-	BranchAction = "action" // 正向操作
-	// BranchCompensate branch type for SAGA
-	BranchCompensate = "compensate" // 补偿操作
-	// BranchCommit branch type for XA
-	BranchCommit = "commit"
-	// BranchRollback branch type for XA
-	BranchRollback = "rollback"
+    // BranchTry branch type for TCC
+    BranchTry = "try"
+    // BranchConfirm branch type for TCC
+    BranchConfirm = "confirm"
+    // BranchCancel branch type for TCC
+    BranchCancel = "cancel"
+    // BranchAction branch type for message, SAGA, XA
+    BranchAction = "action" // 正向操作
+    // BranchCompensate branch type for SAGA
+    BranchCompensate = "compensate" // 补偿操作
+    // BranchCommit branch type for XA
+    BranchCommit = "commit"
+    // BranchRollback branch type for XA
+    BranchRollback = "rollback"
 
-	// ResultSuccess for result of a trans/trans branch
-	ResultSuccess = dtmimp.ResultSuccess
-	// ResultFailure for result of a trans/trans branch
-	ResultFailure = dtmimp.ResultFailure
-	// ResultOngoing for result of a trans/trans branch
-	ResultOngoing = dtmimp.ResultOngoing
+    // ResultSuccess for result of a trans/trans branch
+    ResultSuccess = dtmimp.ResultSuccess
+    // ResultFailure for result of a trans/trans branch
+    ResultFailure = dtmimp.ResultFailure
+    // ResultOngoing for result of a trans/trans branch
+    ResultOngoing = dtmimp.ResultOngoing
 
-	// DBTypeMysql const for driver mysql
-	DBTypeMysql = dtmimp.DBTypeMysql
-	// DBTypePostgres const for driver postgres
-	DBTypePostgres = dtmimp.DBTypePostgres
+    // DBTypeMysql const for driver mysql
+    DBTypeMysql = dtmimp.DBTypeMysql
+    // DBTypePostgres const for driver postgres
+    DBTypePostgres = dtmimp.DBTypePostgres
 )
 
 // MapSuccess HTTP result of SUCCESS

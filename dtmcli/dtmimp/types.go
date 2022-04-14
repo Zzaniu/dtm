@@ -10,15 +10,15 @@ import "database/sql"
 
 // DB inteface of dtmcli db
 type DB interface {
-	Exec(query string, args ...interface{}) (sql.Result, error)
-	QueryRow(query string, args ...interface{}) *sql.Row
+    Exec(query string, args ...interface{}) (sql.Result, error)
+    QueryRow(query string, args ...interface{}) *sql.Row
 }
 
 // DBConf defines db config
 type DBConf struct {
-	Driver   string `yaml:"Driver"`
-	Host     string `yaml:"Host"`
-	Port     int64  `yaml:"Port"`
-	User     string `yaml:"User"`
-	Password string `yaml:"Password"`
+    Driver   string `yaml:"Driver"`
+    Host     string `yaml:"Host"`
+    Port     int64  `yaml:"Port"`
+    User     string `yaml:"User"`
+    Password string `yaml:"Password"`
 }

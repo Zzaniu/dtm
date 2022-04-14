@@ -7,10 +7,10 @@
 package dtmimp
 
 import (
-	"errors"
+    "errors"
 
-	"github.com/dtm-labs/dtm/dtmcli/logger"
-	"github.com/go-resty/resty/v2"
+    "github.com/dtm-labs/dtm/dtmcli/logger"
+    "github.com/go-resty/resty/v2"
 )
 
 // ErrFailure error of FAILURE
@@ -42,14 +42,14 @@ var PassthroughHeaders = []string{}
 var BarrierTableName = "dtm_barrier.barrier"
 
 func init() {
-	RestyClient.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
-		r.URL = MayReplaceLocalhost(r.URL)
-		logger.Debugf("requesting: %s %s %s", r.Method, r.URL, MustMarshalString(r.Body))
-		return nil
-	})
-	RestyClient.OnAfterResponse(func(c *resty.Client, resp *resty.Response) error {
-		r := resp.Request
-		logger.Debugf("requested: %s %s %s", r.Method, r.URL, resp.String())
-		return nil
-	})
+    RestyClient.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+        r.URL = MayReplaceLocalhost(r.URL)
+        logger.Debugf("requesting: %s %s %s", r.Method, r.URL, MustMarshalString(r.Body))
+        return nil
+    })
+    RestyClient.OnAfterResponse(func(c *resty.Client, resp *resty.Response) error {
+        r := resp.Request
+        logger.Debugf("requested: %s %s %s", r.Method, r.URL, resp.String())
+        return nil
+    })
 }

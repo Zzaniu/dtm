@@ -7,19 +7,19 @@
 package dtmgrpc
 
 import (
-	"context"
-	"testing"
+    "context"
+    "testing"
 
-	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestType(t *testing.T) {
-	_, err := BarrierFromGrpc(context.Background())
-	assert.Error(t, err)
+    _, err := BarrierFromGrpc(context.Background())
+    assert.Error(t, err)
 
-	_, err = TccFromGrpc(context.Background())
-	assert.Error(t, err)
+    _, err = TccFromGrpc(context.Background())
+    assert.Error(t, err)
 
-	err = UseDriver("default")
-	assert.Nil(t, err)
+    err = UseDriver("default")
+    assert.Nil(t, err)
 }
